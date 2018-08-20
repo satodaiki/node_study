@@ -2,34 +2,33 @@ var querystring = require("querystring");
 var fs = require("fs");
 var formidable = require("formidable");
 var ejs = require("ejs");
-const exec = require('child_process').exec;
+var to_json = require("xmljson").to_json;
+var execSync = require('child_process').execSync;
 
 function start(response) {
   console.log("Request handler 'start' was called.");
 
   var st = fs.readFileSync("./views/start.ejs", "utf-8");
 
-  var command = 'ls';
+  var command = 'curl "https://rakwf.raito.co.jp/RakWF21/clientapi/login?LOGINID=admin&PASSWD=admin" -H "-ContentType: text/xml"';
 
-  var status = exec(command, (err, stdout, stderr) => {
-    if (err) {
-      console.log('exec command error');
-    }
-    console.log("stdout is '" + stdout + "'");
+  var xml = execSync(command).toString();
+
+  console.log("xml :" + xml);
+
+  to_json(xml, function(error, data) {
+
+    var stObj = {
+      title: "hello ejs.",
+      status: JSON.stringify(data)
+    };
+
+    var page = ejs.render(st, stObj);
+
+    response.writeHead(200, {"Content-Type": "text/html"});
+    response.write(page);
+    response.end();
   });
-
-  console.log('status is :' + status);
-
-  var stObj = {
-    title: "hello ejs.",
-    status: status
-  };
-
-  var page = ejs.render(st, stObj);
-
-  response.writeHead(200, {"Content-Type": "text/html"});
-  response.write(page);
-  response.end();
 }
 
 function upload(response, request) {
