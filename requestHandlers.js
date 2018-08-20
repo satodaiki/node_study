@@ -1,26 +1,34 @@
 var querystring = require("querystring");
 var fs = require("fs");
 var formidable = require("formidable");
+var ejs = require("ejs");
 const exec = require('child_process').exec;
 
 function start(response) {
   console.log("Request handler 'start' was called.");
 
-  var body = '<html>'+
-    '<head>'+
-    '<meta http-equiv="Content-Type" content="text/html; '+
-    'charset=UTF-8" />'+
-    '</head>'+
-    '<body>'+
-    '<form action="/upload" method="post" enctype="multipart/form-data">'+
-    '<input type="file" name="upload">'+
-    '<input type="submit" value="Upload file" />'+
-    '</form>'+
-    '</body>'+
-    '</html>';
+  var st = fs.readFileSync("./views/start.ejs", "utf-8");
+
+  var command = 'ls';
+
+  var status = exec(command, (err, stdout, stderr) => {
+    if (err) {
+      console.log('exec command error');
+    }
+    console.log("stdout is '" + stdout + "'");
+  });
+
+  console.log('status is :' + status);
+
+  var stObj = {
+    title: "hello ejs.",
+    status: status
+  };
+
+  var page = ejs.render(st, stObj);
 
   response.writeHead(200, {"Content-Type": "text/html"});
-  response.write(body);
+  response.write(page);
   response.end();
 }
 
