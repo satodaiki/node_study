@@ -10,17 +10,11 @@ function start(response) {
 
   var st = fs.readFileSync("./views/start.ejs", "utf-8");
 
-  var command = 'curl "https://rakwf.raito.co.jp/RakWF21/clientapi/login?LOGINID=admin&PASSWD=admin" -H "-ContentType: text/xml"';
-
   var xml = execSync(command).toString();
-
-  console.log("xml :" + xml);
-
-  to_json(xml, function(error, data) {
 
     var stObj = {
       title: "hello ejs.",
-      status: JSON.stringify(data)
+      status: "test"
     };
 
     var page = ejs.render(st, stObj);
@@ -28,7 +22,6 @@ function start(response) {
     response.writeHead(200, {"Content-Type": "text/html"});
     response.write(page);
     response.end();
-  });
 }
 
 function upload(response, request) {
